@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const User = require('../models/userModel')
 
 const healthApi = async (req, res) => {
@@ -41,6 +42,37 @@ const signUp = async (req, res) => {
     }
 }
 
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body
+        const user = await User.findOne({ email })
+
+        if (!user) {
+            return res.status(403).json({
+                message: 'Incorrect credentials! user not found'
+            })
+        }
+
+        const isPassworMatched = await bcrypt.compare(password, user.password)
+        if (isPassworMatched) {
+            const token = { userId: user._id, email: user.email }
+            const jwttoken = jwt.sign(token, process.env.JWT_SECRET_KEY, { expiresIn: '24h' })
+            return res.status(200).json({
+                message: "You've successfully logged in",
+                jwttoken
+            })
+        } else {
+            res.status(403).json({
+                message: 'Incorrect credentials! Please try again'
+            })
+        }
+    }
+    catch (err) {
+        res.status(500).json({
+            message: 'Internal server error'
+        });
+    }
+}
 
 
-module.exports = { healthApi, signUp }
+module.exports = { healthApi, signUp, login }

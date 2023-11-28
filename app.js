@@ -3,13 +3,15 @@ require('dotenv').config()
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 
-const jwt = require('jsonwebtoken')
 const routes = require('./routes/weekListRoute')
 const app = express()
 
 app.use(bodyParser.urlencoded({
     extended: false
 }))
+
+app.use(bodyParser.json())
+
 app.use('/', routes)
 
 app.use((req, res) => {
