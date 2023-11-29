@@ -29,9 +29,11 @@ const signUp = async (req, res) => {
         const { fullname, email, password, age, gender, mobile } = req.body
         const encryptPassword = await bcrypt.hash(password, 10)
         const user = await User.create({ fullname, email, password: encryptPassword, age, gender, mobile })
+        const jwttoken = jwt.sign({email}, process.env.JWT_SECRET_KEY, { expiresIn: '24h' })
         await user.save()
         res.status(200).json({
             user,
+            jwttoken,
             message: 'user created successfully'
         })
     }
