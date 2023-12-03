@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const User = require('../models/userModel')
 const Schema = mongoose.Schema
 
 const weekListSchema = new Schema({
@@ -18,8 +17,8 @@ const weekListSchema = new Schema({
     createdAt: Date,
     updatedAt: Date,
     completed: Boolean,
-    timeLeft: Date,
-
+    isActive: Boolean,
+    timeLeft: Date
 })
 
 module.exports = mongoose.model('WeekList', weekListSchema)

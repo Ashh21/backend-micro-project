@@ -93,34 +93,33 @@ const isLoggedIn = (req, res, next) => {
 
 const createWeeklist = async (req, res) => {
     try {
-        const activeWeeklist = await WeekList.countDocuments({
-            completed: false
-        })
-        if (activeWeeklist >= 2) {
+        const activeWeeklist = await WeekList.find({ userId: req.user.userId, completed: false })
+
+        if (activeWeeklist.length >= 2) {
             return res.status(403).json({
                 error: 'User can have only two active week lists at a time, complete previous one to create new weeklist'
             })
         }
-        const { description, tasks, } = req.body
-        // const currentTime = Date.now()
-        // const timeLeft = 24 * 60 * 60 * 1000 - currentTime
-        // console.log(timeLeft)
-        // console.log(currentTime)
-       
+
+        // const { id } = req.params
+        const { description, tasks } = req.body
+        // const timeLeftInWeekList = await WeekList.findOne(id)
+        // const leftTime = 24 * 60 * 60 * 1000 - timeLeftInWeekList.createdAt
+        // console.log(timeLeftInWeekList)
+
         const newWeekList = await WeekList.create({
             userId: req.user.userId,
             description,
             tasks,
             completed: false,
             weekListId: await WeekList.countDocuments() + 1,
+            isActive: true,
             createdAt: Date.now(),
-            timeLeft
+            updatedAt: null,
+            // timeLeft: leftTime
         })
 
-        const timeLeft = (20 * 60 * 60 * 60 * 1000 - newWeekList.createdAt)
-        
-
-        res.status(201).json({ newWeekList, timeLeft })
+        res.status(201).json({ newWeekList })
     } catch (error) {
         res.status(400).json({
             error: error.message
@@ -143,7 +142,8 @@ const updateWeekList = async (req, res) => {
             })
         }
 
-        const updateWeekList = await WeekList.findByIdAndUpdate(id, { $set: req.body, updatedAt: Date.now() })
+        const updateTime = weekList.updatedAt = Date.now()
+        const updateWeekList = await WeekList.findByIdAndUpdate(id, { $set: req.body, updateTime })
         res.status(200).json(updateWeekList)
     }
     catch (error) {
@@ -180,8 +180,9 @@ const deleteWeekList = async (req, res) => {
 
 const getWeekLists = async (req, res) => {
     try {
-        const { id } = req.params
-        const weekList = await WeekList.find(id)
+
+        const weekList = await WeekList.find({ userId: req.user.userId })
+        console.log(req.user.userId)
         res.json({ weekList })
     }
     catch (error) {

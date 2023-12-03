@@ -10,7 +10,7 @@ router.post('/login', login)
 
 router.post('/weekList', isLoggedIn, createWeeklist)
 
-router.patch('/weekList:id', isLoggedIn, updateWeekList)
+router.patch('/weekList/:id', isLoggedIn, updateWeekList)
 
 router.delete('/weekList/:id', isLoggedIn, deleteWeekList)
 
